@@ -329,11 +329,11 @@ class TestInjectClaudeMd:
 class TestInjectPlatformInstructionsFiltering:
     def test_all_writes_every_file(self, tmp_path):
         updated = inject_platform_instructions(tmp_path, target="all")
-        assert set(updated) == {"AGENTS.md", "GEMINI.md", ".cursorrules", ".windsurfrules", "QODER.md", ".kiro/steering/code-review-graph.md", ".github/copilot-instructions.md"}
+        assert set(updated) == {"AGENTS.md", "GEMINI.md", ".cursorrules", ".windsurfrules", "QODER.md", ".kiro/steering/code-review-graph.md", ".github/code-review-graph.instruction.md"}
 
     def test_default_is_all(self, tmp_path):
         updated = inject_platform_instructions(tmp_path)
-        assert set(updated) == {"AGENTS.md", "GEMINI.md", ".cursorrules", ".windsurfrules", "QODER.md", ".kiro/steering/code-review-graph.md", ".github/copilot-instructions.md"}
+        assert set(updated) == {"AGENTS.md", "GEMINI.md", ".cursorrules", ".windsurfrules", "QODER.md", ".kiro/steering/code-review-graph.md", ".github/code-review-graph.instruction.md"}
 
     def test_claude_writes_nothing(self, tmp_path):
         updated = inject_platform_instructions(tmp_path, target="claude")
@@ -343,7 +343,7 @@ class TestInjectPlatformInstructionsFiltering:
         assert not (tmp_path / ".cursorrules").exists()
         assert not (tmp_path / ".windsurfrules").exists()
         assert not (tmp_path / "QODER.md").exists()
-        assert not (tmp_path / ".github" / "copilot-instructions.md").exists()
+        assert not (tmp_path / ".github" / "code-review-graph.instruction.md").exists()
 
     def test_cursor_writes_only_cursor_files(self, tmp_path):
         updated = inject_platform_instructions(tmp_path, target="cursor")
@@ -975,10 +975,10 @@ class TestCopilotPlatform:
         assert list(data["servers"].keys()).count("code-review-graph") == 1
 
     def test_copilot_instructions_file_written(self, tmp_path):
-        """inject_platform_instructions creates .github/copilot-instructions.md."""
+        """inject_platform_instructions creates .github/code-review-graph.instruction.md."""
         updated = inject_platform_instructions(tmp_path, target="copilot")
-        assert ".github/copilot-instructions.md" in updated
-        instructions = tmp_path / ".github" / "copilot-instructions.md"
+        assert ".github/code-review-graph.instruction.md" in updated
+        instructions = tmp_path / ".github" / "code-review-graph.instruction.md"
         assert instructions.exists()
         content = instructions.read_text()
         assert _CLAUDE_MD_SECTION_MARKER in content
@@ -986,9 +986,9 @@ class TestCopilotPlatform:
     def test_copilot_instructions_idempotent(self, tmp_path):
         """Running inject twice produces identical content."""
         inject_platform_instructions(tmp_path, target="copilot")
-        first = (tmp_path / ".github" / "copilot-instructions.md").read_text()
+        first = (tmp_path / ".github" / "code-review-graph.instruction.md").read_text()
         inject_platform_instructions(tmp_path, target="copilot")
-        second = (tmp_path / ".github" / "copilot-instructions.md").read_text()
+        second = (tmp_path / ".github" / "code-review-graph.instruction.md").read_text()
         assert first == second
 
     def test_copilot_dry_run(self, tmp_path):
@@ -1001,7 +1001,7 @@ class TestCopilotPlatform:
     def test_copilot_writes_only_copilot_instructions(self, tmp_path):
         """inject_platform_instructions with target='copilot' writes only copilot file."""
         updated = inject_platform_instructions(tmp_path, target="copilot")
-        assert updated == [".github/copilot-instructions.md"]
+        assert updated == [".github/code-review-graph.instruction.md"]
         assert not (tmp_path / "AGENTS.md").exists()
         assert not (tmp_path / "GEMINI.md").exists()
         assert not (tmp_path / ".cursorrules").exists()
@@ -1102,10 +1102,10 @@ class TestCopilotCLIPlatform:
         assert list(data["servers"].keys()).count("code-review-graph") == 1
 
     def test_copilot_cli_injects_copilot_instructions(self, tmp_path):
-        """inject_platform_instructions with target='copilot-cli' writes .github/copilot-instructions.md."""
+        """inject_platform_instructions with target='copilot-cli' writes .github/code-review-graph.instruction.md."""
         updated = inject_platform_instructions(tmp_path, target="copilot-cli")
-        assert ".github/copilot-instructions.md" in updated
-        instructions = tmp_path / ".github" / "copilot-instructions.md"
+        assert ".github/code-review-graph.instruction.md" in updated
+        instructions = tmp_path / ".github" / "code-review-graph.instruction.md"
         assert instructions.exists()
         content = instructions.read_text()
         assert _CLAUDE_MD_SECTION_MARKER in content
